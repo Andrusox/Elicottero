@@ -156,4 +156,12 @@ int main(int argc, char *argv[]){
             takeSon(0,i);
         }
     }
+
+
+    cout << "I generali sono: ";
+    for(int gi=0;gi<genIter;gi++){
+        if(aggiunti[generali[gi]] == 0)
+        cout << generali[gi] << " ";  
+    }
+    cout << endl;
 }
