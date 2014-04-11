@@ -8,11 +8,13 @@ using namespace std;
     
 
 // dimensione per la creazione dell' array
-int generali[10];
-int aggiunti[10];
-int a[10][10];
-int n=10,link, from, to;
+int link, from, to;
+int* generali;
+int* aggiunti;
+int** a;
 int genIter=0;
+void takeSon(int , int );
+int n = 100000;
 
 // ###############################################################################################################
 
@@ -27,8 +29,8 @@ public:
     bool isReachable(int s, int d);  // ritorna true se c'è un cammino tra s e d
 };
 
-    // creo il grafo
-    Graph g(n);
+// creo il grafo
+Graph g(n);
  
 Graph::Graph(int V){
     this->V = V;
@@ -86,40 +88,29 @@ bool Graph::isReachable(int s, int d){
  
     return false;
 }
-
-void takeSon(int k, int i){
-    for(int k=0;k<n;k++){
-        // se trovo figlio nella matrice, ovvero arco da i a k
-        if(a[i][k] == 1){
-            // se il figlio non appartiene agli aggiunti
-            if(aggiunti[k] == 0){
-                // legge due, ovvero se il nodo figlio non raggiunge il padre
-                if(!g.isReachable(k, i)){
-                    aggiunti[k] = 1;
-                    cout << i << " -> " << k << endl;
-                    takeSon(0,k);
-                }
-            }
-        }
-    }
-}
-
-
-
 // ###############################################################################################################
 
 
 int main(int argc, char *argv[]){
 
     // apro il file input in lettura
-    ifstream in ("input0.txt");
+    ifstream in ("input15.txt");
     in >> n >> link;
+
+    generali = new int[n];
+    aggiunti = new int[n];
+    
+    a = new int*[n];
+    for (int ar = 0; ar < n; ar++){
+        a[ar] = new int[n];
+    }
 
 
     // inizializzo array di aggiunti tutto a 0
     for(int i=0;i<n;i++){
         aggiunti[i] = 0;
     }
+
 
     // inizializzazione matrice collegamenti tutta a 0
     for(int row=0;row<n;row++){
@@ -128,12 +119,14 @@ int main(int argc, char *argv[]){
         }
     }
 
+
     // aggiungo 1 ai collegamenti e aggiungo archi al grafo
     while(!in.eof()){
         in >> from >> to;
         a[from][to] = 1;
         g.addEdge(from, to);
     }
+
     /*
     // controllo se da un nodo u riesco ad arrivare a tutti gli altri nodi presenti nel grafo!
     for(int pk=0;pk<n;pk++){
@@ -158,10 +151,36 @@ int main(int argc, char *argv[]){
     }
 
 
-    cout << "I generali sono: ";
+    ofstream outf;
+    outf.open("output.txt");
+    outf << genIter << endl;
     for(int gi=0;gi<genIter;gi++){
-        if(aggiunti[generali[gi]] == 0)
-        cout << generali[gi] << " ";  
+        if(aggiunti[generali[gi]] == 0){
+            outf << generali[gi] << " "; 
+        }
     }
-    cout << endl;
+    outf << endl;
+
+    outf.close();
+}
+
+
+
+// ###############################################################################################################
+
+void takeSon(int k, int i){
+    for(int k=0;k<n;k++){
+        // se trovo figlio nella matrice, ovvero arco da i a k
+        if(a[i][k] == 1){
+            // se il figlio non appartiene agli aggiunti
+            if(aggiunti[k] == 0){
+                // legge due, ovvero se il nodo figlio non raggiunge il padre
+                if(!g.isReachable(k, i)){
+                    aggiunti[k] = 1;
+                    cout << i << " -> " << k << endl;
+                    takeSon(0,k);
+                }
+            }
+        }
+    }
 }
