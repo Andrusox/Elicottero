@@ -6,8 +6,6 @@ using namespace std;
 
 // ###############################################################################################################
     
-
-// dimensione per la creazione dell' array
 int link, from, to;
 int* generali;
 int* aggiunti;
@@ -15,6 +13,7 @@ int** a;
 int genIter=0;
 void takeSon(int , int );
 int n = 100000;
+int numCon = 0;
 
 // ###############################################################################################################
 
@@ -29,7 +28,7 @@ public:
     bool isReachable(int s, int d);  // ritorna true se c'è un cammino tra s e d
 };
 
-// creo il grafo
+// creo il grafo | PROBLEMA IL GRAFO VIENE CREATO CON n NODI CON n SETTATO INIZIALMENTE
 Graph g(n);
  
 Graph::Graph(int V){
@@ -94,12 +93,14 @@ bool Graph::isReachable(int s, int d){
 int main(int argc, char *argv[]){
 
     // apro il file input in lettura
-    ifstream in ("input15.txt");
+    ifstream in ("input2.txt");
     in >> n >> link;
 
+    // allocazione dinamica degli array
     generali = new int[n];
     aggiunti = new int[n];
     
+    // allocazione dinamica della matrice
     a = new int*[n];
     for (int ar = 0; ar < n; ar++){
         a[ar] = new int[n];
@@ -150,17 +151,28 @@ int main(int argc, char *argv[]){
         }
     }
 
+    // uso per trovare il numero di consiglieri facendo il check con gli aggiunti
+    for(int gi=0;gi<genIter;gi++){
+        if(aggiunti[generali[gi]] == 0){
+             numCon++;
+        }
+    }
 
+    // apro il file in scrittura
     ofstream outf;
     outf.open("output.txt");
-    outf << genIter << endl;
+
+    // stampo il numero dei generali
+    outf << numCon << endl;
+
+    // stampo i generali
     for(int gi=0;gi<genIter;gi++){
         if(aggiunti[generali[gi]] == 0){
             outf << generali[gi] << " "; 
         }
     }
-    outf << endl;
 
+    outf << endl;
     outf.close();
 }
 
