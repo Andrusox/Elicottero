@@ -1,6 +1,7 @@
 #include <iostream>
 #include <list>
 #include <fstream> 
+#include <vector>
 
 using namespace std;
 
@@ -9,11 +10,12 @@ using namespace std;
 int link, from, to;
 int* generali;
 int* aggiunti;
-int** a;
+//int** a;
 int genIter=0;
-void takeSon(int,int,std::ofstream&);
+void takeSon(int,int);
 int n = 10000;
 int numCon = 0;
+vector<int> vectorLink;
 
 // ###############################################################################################################
 
@@ -25,6 +27,7 @@ class Graph{
 public:
     Graph(int V);  // costruttore
     void addEdge(int v, int w); // funzione che aggiunge collegamenti al grafo
+    int returnSize(int i);
     bool isReachable(int s, int d);  // ritorna true se c'è un cammino tra s e d
 };
 
@@ -38,6 +41,11 @@ Graph::Graph(int V){
  
 void Graph::addEdge(int v, int w){
     adj[v].push_back(w); // Add w to v’s list.
+}
+
+
+int Graph::returnSize(int i){
+    return adj[i].size();
 }
 
 // BFS controlla se d è raggiungibile da s
@@ -93,18 +101,20 @@ bool Graph::isReachable(int s, int d){
 int main(int argc, char *argv[]){
 
     // apro il file input in lettura
-    ifstream in ("input2.txt");
+    ifstream in ("input.txt");
     in >> n >> link;
 
     // allocazione dinamica degli array
     generali = new int[n];
     aggiunti = new int[n];
     
+    /*
     // allocazione dinamica della matrice
     a = new int*[n];
     for (int ar = 0; ar < n; ar++){
         a[ar] = new int[n];
     }
+    */
 
 
     // inizializzo array di aggiunti tutto a 0
@@ -112,19 +122,20 @@ int main(int argc, char *argv[]){
         aggiunti[i] = 0;
     }
 
-
+    /*
     // inizializzazione matrice collegamenti tutta a 0
     for(int row=0;row<n;row++){
         for(int col=0;col<n;col++){
             a[row][col] = 0;
         }
     }
+    */
 
 
     // aggiungo 1 ai collegamenti e aggiungo archi al grafo
     while(!in.eof()){
         in >> from >> to;
-        a[from][to] = 1;
+        //a[from][to] = 1;
         g.addEdge(from, to);
     }
 
@@ -133,14 +144,14 @@ int main(int argc, char *argv[]){
     /*
     // controllo se da un nodo u riesco ad arrivare a tutti gli altri nodi presenti nel grafo!
     for(int pk=0;pk<n;pk++){
-	    int u = 2;
+        int u = 2;
 
-		    if(g.isReachable(u, pk))
-		        cout<< "There is a path from " << u << " to " << pk << endl;
-		    else
-		        cout<< "There is no path from " << u << " to " << pk << endl;
+            if(g.isReachable(u, pk))
+                cout<< "There is a path from " << u << " to " << pk << endl;
+            else
+                cout<< "There is no path from " << u << " to " << pk << endl;
 
-	}
+    }
     */
 
     // apro il file in scrittura
@@ -153,7 +164,7 @@ int main(int argc, char *argv[]){
         if(aggiunti[i] == 0){
             generali[genIter] = i;
             genIter++;
-            takeSon(0,i,outf);
+            takeSon(0,i);
         }
     }
 
@@ -173,6 +184,11 @@ int main(int argc, char *argv[]){
             outf << generali[gi] << " "; 
         }
     }
+     outf << endl;
+
+    for(int p=0;p<vectorLink.size();p+=2){
+        outf << vectorLink[p] << " " << vectorLink[p+1] << endl; 
+    }
 
     outf << endl;
     outf.close();
@@ -182,17 +198,18 @@ int main(int argc, char *argv[]){
 
 // ###############################################################################################################
 
-void takeSon(int k, int i,std::ofstream& outf){
-    for(int k=0;k<n;k++){
-        // se trovo figlio nella matrice, ovvero arco da i a k
-        if(a[i][k] == 1){
+void takeSon(int k, int i){
+    if(g.returnSize(i) > 0){
+        for(int k=0;k<g.returnSize(i);k++){
             // se il figlio non appartiene agli aggiunti
             if(aggiunti[k] == 0){
                 // legge due, ovvero se il nodo figlio non raggiunge il padre
                 if(!g.isReachable(k, i)){
                     aggiunti[k] = 1;
-                    outf << i << " -> " << k << endl;
-                    takeSon(0,k,outf);
+                    vectorLink.push_back(i);
+                    vectorLink.push_back(k);
+                    //outf << i << " -> " << k << endl;
+                    takeSon(0,k);
                 }
             }
         }
