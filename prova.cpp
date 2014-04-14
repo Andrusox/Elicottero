@@ -11,8 +11,8 @@ int* generali;
 int* aggiunti;
 int** a;
 int genIter=0;
-void takeSon(int , int );
-int n = 100000;
+void takeSon(int,int,std::ofstream&);
+int n = 10000;
 int numCon = 0;
 
 // ###############################################################################################################
@@ -28,7 +28,7 @@ public:
     bool isReachable(int s, int d);  // ritorna true se c'è un cammino tra s e d
 };
 
-// creo il grafo | PROBLEMA IL GRAFO VIENE CREATO CON n NODI CON n SETTATO INIZIALMENTE
+// creo il grafo | PROBLEMA IL GRAFO VIENE CREATO CON n NODI PER n SETTATO INIZIALMENTE
 Graph g(n);
  
 Graph::Graph(int V){
@@ -128,6 +128,8 @@ int main(int argc, char *argv[]){
         g.addEdge(from, to);
     }
 
+    in.close();
+
     /*
     // controllo se da un nodo u riesco ad arrivare a tutti gli altri nodi presenti nel grafo!
     for(int pk=0;pk<n;pk++){
@@ -141,13 +143,17 @@ int main(int argc, char *argv[]){
 	}
     */
 
+    // apro il file in scrittura
+    ofstream outf;
+    outf.open("output.txt");
+
     // itero su tutti i nodi del grafo
     for(int i=0;i<n;i++){
         // controllo se il nodo che prendo in considerazione è già stato aggiunto, se 0 aggiungo a generali
         if(aggiunti[i] == 0){
             generali[genIter] = i;
             genIter++;
-            takeSon(0,i);
+            takeSon(0,i,outf);
         }
     }
 
@@ -157,10 +163,6 @@ int main(int argc, char *argv[]){
              numCon++;
         }
     }
-
-    // apro il file in scrittura
-    ofstream outf;
-    outf.open("output.txt");
 
     // stampo il numero dei generali
     outf << numCon << endl;
@@ -180,7 +182,7 @@ int main(int argc, char *argv[]){
 
 // ###############################################################################################################
 
-void takeSon(int k, int i){
+void takeSon(int k, int i,std::ofstream& outf){
     for(int k=0;k<n;k++){
         // se trovo figlio nella matrice, ovvero arco da i a k
         if(a[i][k] == 1){
@@ -189,8 +191,8 @@ void takeSon(int k, int i){
                 // legge due, ovvero se il nodo figlio non raggiunge il padre
                 if(!g.isReachable(k, i)){
                     aggiunti[k] = 1;
-                    cout << i << " -> " << k << endl;
-                    takeSon(0,k);
+                    outf << i << " -> " << k << endl;
+                    takeSon(0,k,outf);
                 }
             }
         }
