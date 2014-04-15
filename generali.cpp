@@ -95,7 +95,7 @@ bool Graph::isReachable(int s, int d){
 int main(int argc, char *argv[]){
 
     // apro il file input in lettura
-    ifstream in ("input.txt");
+    ifstream in ("input2.txt");
     in >> n >> link;
 
     // allocazione dinamica degli array
@@ -195,12 +195,11 @@ void takeSon(int k, int i){
         if(a[i][k] == 1){
             // se il figlio non appartiene agli aggiunti
             if(aggiunti[k] == 0){
-                // legge due, ovvero se il nodo figlio non raggiunge il padre
+                // legge due ovvero se il nodo figlio non raggiunge il padre
                 if(!g.isReachable(k, i)){
                     aggiunti[k] = 1;
                     vectorLink.push_back(i);
                     vectorLink.push_back(k);
-                    //outf << i << " -> " << k << endl;
                     takeSon(0,k);
                 }
             }

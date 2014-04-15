@@ -2,76 +2,48 @@
 #include <list>
 #include <fstream> 
 #include <vector>
-
 using namespace std;
 
 // ###############################################################################################################
-    
-int link, from, to;
+
+struct Graph{
+    int V;
+    list<int> *adj;
+};    
+int link, from, to,n;
 int* generali;
 int* aggiunti;
 int genIter=0;
-void takeSon(int,int);
-int n = 10000;
+void takeSon(int);
 int numCon = 0;
 vector<int> vectorLink;
+Graph* g;
 
 // ###############################################################################################################
 
-
-// This class represents a directed graph using adjacency list representation
-class Graph{
-    int V;    // numero di vertici
-    list<int> *adj;    // Pointer to an array containing adjacency lists
-public:
-    Graph(int V);  // costruttore
-    void addEdge(int v, int w); // funzione che aggiunge collegamenti al grafo
-    void stampoQualcosa();
-    int returnSize(int i);
-    list<int> returnList(int i);
-    bool isReachable(int s, int d);  // ritorna true se c'è un cammino tra s e d
-};
-
-// creo il grafo | PROBLEMA IL GRAFO VIENE CREATO CON n NODI PER n SETTATO INIZIALMENTE
-Graph g(n);
- 
-Graph::Graph(int V){
-    this->V = V;
-    adj = new list<int>[V];
-}
- 
-void Graph::addEdge(int v, int w){
-    adj[v].push_back(w); // Add w to v’s list.
+void init(int V){
+    g = new Graph;
+    g->V = V;
+    g->adj = new list<int>[V];
 }
 
-void Graph::stampoQualcosa(){
-
-    list<int>::iterator bom;
-    list<int> pippo = adj[0];
-    for (bom=pippo.begin(); bom != pippo.end(); bom++){
-        cout << *bom << endl;
-    }
-    cout << pippo.size() << endl;
+void addEdge(int v, int w){
+    g->adj[v].push_back(w);
 }
 
-
-int Graph::returnSize(int i){
-    return adj[i].size();
+list<int> returnList(int i){
+    return g->adj[i];
 }
 
-list<int> Graph::returnList(int i){
-    return adj[i];
-}
-
-// BFS controlla se d è raggiungibile da s
-bool Graph::isReachable(int s, int d){
+bool isReachable(int s, int d){
     // Base case
-    if (s == d)
+    if (s == d){
       return true;
+    }
  
     // segna tutti i vertici come non visitati
-    bool *visited = new bool[V];
-    for (int i = 0; i < V; i++)
+    bool *visited = new bool[g->V];
+    for (int i = 0; i < g->V; i++)
         visited[i] = false;
  
     // crea la coda per la BFS
@@ -93,11 +65,13 @@ bool Graph::isReachable(int s, int d){
         // Get all adjacent vertices of the dequeued vertex s
         // If a adjacent has not been visited, then mark it visited
         // and enqueue it
-        for (i = adj[s].begin(); i != adj[s].end(); ++i){
+        for (i = g->adj[s].begin(); i != g->adj[s].end(); ++i){
 
             // If this adjacent node is the destination node, then return true
-            if (*i == d)
+            if (*i == d){
+                delete [] visited;
                 return true;
+            }
  
             // Else, continue to do BFS
             if (!visited[*i]){
@@ -107,9 +81,10 @@ bool Graph::isReachable(int s, int d){
             }
         }
     }
- 
+    delete [] visited;
     return false;
 }
+
 // ###############################################################################################################
 
 
@@ -118,6 +93,9 @@ int main(int argc, char *argv[]){
     // apro il file input in lettura
     ifstream in ("input solito.txt");
     in >> n >> link;
+
+    // inizializzo la struct Graph
+    init(n);
 
     // allocazione dinamica degli array
     generali = new int[n];
@@ -131,13 +109,8 @@ int main(int argc, char *argv[]){
     // aggiungo 1 ai collegamenti e aggiungo archi al grafo
     while(!in.eof()){
         in >> from >> to;
-        //a[from][to] = 1;
-        g.addEdge(from, to);
-
+        addEdge(from, to);
     }
-
-    g.stampoQualcosa();
-
     in.close();
 
     // apro il file in scrittura
@@ -150,7 +123,7 @@ int main(int argc, char *argv[]){
         if(aggiunti[i] == 0){
             generali[genIter] = i;
             genIter++;
-            takeSon(0,i);
+            takeSon(i);
         }
     }
 
@@ -170,8 +143,9 @@ int main(int argc, char *argv[]){
             outf << generali[gi] << " "; 
         }
     }
-     outf << endl;
+    outf << endl;
 
+    // stampo i collegamenti degli alberi finali
     for(int p=0;p<vectorLink.size();p+=2){
         outf << vectorLink[p] << " " << vectorLink[p+1] << endl; 
     }
@@ -180,26 +154,22 @@ int main(int argc, char *argv[]){
     outf.close();
 }
 
-
-
 // ###############################################################################################################
 
-void takeSon(int k, int i){
+void takeSon(int i){
 
-    list <int> lst = g.returnList(i);
-    list<int>::iterator it;
-
-    if(g.returnSize(i) > 0){
-       for (it=lst.begin(); it != lst.end(); ++it){
-            // se il figlio non appartiene agli aggiunti
-            if(aggiunti[*it] == 0){
-                // legge due, ovvero se il nodo figlio non raggiunge il padre
-                if(!g.isReachable(*it, i)){
-                    aggiunti[*it] = 1;
-                    //vectorLink.push_back(i);
-                    //vectorLink.push_back(*it);
-                    cout << i << " -> " << *it << endl;
-                    takeSon(0,*it);
+    // mi prendo la lista 
+    list<int> lst = returnList(i);
+    // se la lista contiene almeno un elemento eseguo
+    if(lst.size() > 0){
+        for(list<int>::iterator it=lst.begin(); it != lst.end(); ++it){
+            int node = *it;
+            if(aggiunti[node] == 0){
+                if(!isReachable(node,i)){
+                    aggiunti[node] = 1;
+                    vectorLink.push_back(i);
+                    vectorLink.push_back(node);
+                    takeSon(node);
                 }
             }
         }

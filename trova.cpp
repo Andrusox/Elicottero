@@ -9,7 +9,7 @@ int main(void)
 list <int> lst;
 // list iterators
 list <int>::iterator result;
-int i=31;
+int i=466;
  
 // pushing data, constructing lst list
 lst.push_back(9);
